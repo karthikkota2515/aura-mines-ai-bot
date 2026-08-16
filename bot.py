@@ -89,3 +89,74 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def message_handler(update:
+                          import os
+import threading
+from flask import Flask
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    CallbackQueryHandler,
+    ContextTypes,
+)
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+ACCESS_KEY = os.getenv("ACCESS_KEY", "")
+
+if not BOT_TOKEN:
+    raise RuntimeError("BOT_TOKEN environment variable is missing")
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "AURA Mines AI Bot is running!"
+
+def run_web():
+    port = int(os.getenv("PORT", "10000"))
+    app.run(host="0.0.0.0", port=port)
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        [InlineKeyboardButton("🔑 Enter Key", callback_data="key")],
+        [InlineKeyboardButton("📊 Analysis", callback_data="analysis")],
+        [InlineKeyboardButton("ℹ️ Help", callback_data="help")]
+    ]
+
+    text = (
+        "💎 *Welcome to AURA Mines AI*\n\n"
+        "📊 Game statistics & educational analysis\n"
+        "⚡ Simple and fast information\n\n"
+        "⚠️ Mines outcomes are random.\n"
+        "❌ This bot does NOT guarantee wins or predict the next mine."
+    )
+
+    await update.message.reply_text(
+        text,
+        parse_mode="Markdown",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
+
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "💎 *AURA Mines AI — Help*\n\n"
+        "/start - Start bot\n"
+        "/key - Enter access key\n"
+        "/analysis - View demo analysis\n"
+        "/help - Help information\n\n"
+        "⚠️ Analysis is for educational/demo purposes only.",
+        parse_mode="Markdown"
+    )
+
+async def key_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "🔑 Please use:\n\n"
+        "`/key YOUR_ACCESS_KEY`",
+        parse_mode="Markdown"
+    )
+
+async def analysis_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "📊 *AURA Mines AI — Demo Analysis*\n\n"
+        "🎯 Board: 5 × 5\n"
+        "💣
